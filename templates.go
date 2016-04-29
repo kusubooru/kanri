@@ -5,27 +5,12 @@ package main
 import "html/template"
 
 var (
-	safeTmpl  = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
-	loginTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
 	indexTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
+	loginTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
+	safeTmpl  = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
 )
 
 const (
-	loginTemplate = `
-{{define "content"}}
-<form id="login-form" method="post" action="/kanri/login/submit">
-<h1>Login</h1>
-    <label for="username">User name</label>
-    <input type="text" id="username" name="username">
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password">
-    <button type="submit">Login</button>
-	{{if .Data}}
-	<em>{{.Data}}</em>
-	{{end}}
-</form>
-{{end}}
-`
 	baseTemplate = `
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +33,7 @@ const (
 	<meta name="keywords" content="{{.Common.Keywords}}">
 	<style>
 		* {
-			font-size: 16px; 
+			font-size: 16px;
 			line-height: 1.2;
 			font-family: Verdana, Geneva, sans-serif;
 		}
@@ -236,6 +221,27 @@ const (
 </body>
 </html>
 `
+	indexTemplate = `
+{{define "title"}}Home{{end}}
+{{define "content"}}
+<h1>Management tools for shimmie</h1>
+{{end}}
+`
+	loginTemplate = `
+{{define "content"}}
+<form id="login-form" method="post" action="/kanri/login/submit">
+<h1>Login</h1>
+    <label for="username">User name</label>
+    <input type="text" id="username" name="username">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password">
+    <button type="submit">Login</button>
+	{{if .Data}}
+	<em>{{.Data}}</em>
+	{{end}}
+</form>
+{{end}}
+`
 	navTemplate = `
 {{define "subnav"}}
 <div id="subnav">
@@ -245,12 +251,6 @@ const (
 	     <input class="subnav-button-link" type="submit" value="Logout">
 	</form>
 </div>
-{{end}}
-`
-	indexTemplate = `
-{{define "title"}}Home{{end}}
-{{define "content"}}
-<h1>Management tools for shimmie</h1>
 {{end}}
 `
 	safeTemplate = `
@@ -274,7 +274,7 @@ const (
 		float: left;
 		min-width: 192px;
 		min-height: 192px;
-	}	
+	}
 	.safe-body {
 		padding: 0.5em;
 		overflow: auto;
