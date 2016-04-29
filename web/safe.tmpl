@@ -1,0 +1,57 @@
+{{define "title"}}Safe Approval{{end}}
+{{define "css"}}
+<style>
+	.safe {
+		margin: 0.5em;
+		display: block;
+		overflow: auto;
+	}
+	.safe-body form  {
+		font-size: 120%;
+		line-height: 1.2;
+	}
+	.safe-body span  {
+		font-size: 120%;
+		line-height: 1.2;
+	}
+	.safe-thumb {
+		float: left;
+		min-width: 192px;
+		min-height: 192px;
+	}
+	.safe-body {
+		padding: 0.5em;
+		overflow: auto;
+		display: block;
+		line-height: 1.2;
+	}
+	.safe-body input[type="submit"] {
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+{{range .Data}}
+<div class="safe">
+	<div class="safe-thumb">
+		<a href="/kanri/image/{{.Hash}}"><img src="/kanri/thumb/{{.Hash}}"></a>
+	</div>
+	<div class="safe-body">
+		<span>Rated by: {{.Rater}} ({{.RaterIP}}) on {{.RateDate}}</span>
+		<form method="POST" action="/kanri/safe/rate">
+			<input type="hidden" name="id" value="{{.ID}}">
+			<input type="radio" name="rating" value="s" {{if eq .Rating "s"}}checked{{end}}> Safe
+			<input type="radio" name="rating" value="q" {{if eq .Rating "q"}}checked{{end}}> Questionable
+			<input type="radio" name="rating" value="e" {{if eq .Rating "e"}}checked{{end}}> Explicit
+			<input type="submit" value="Rate">
+		</form>
+	</div>
+</div>
+{{else}}
+
+<div class="alert alert-success">
+	<strong>Woot:</strong> Every image rating is approved!
+</div>
+{{end}}
+{{end}}
