@@ -159,10 +159,6 @@ func makeWalkFunc(root string, tmap *templateMap) filepath.WalkFunc {
 	}
 }
 
-func find(root string, tmap *templateMap) {
-	filepath.Walk(root, makeWalkFunc(root, tmap))
-}
-
 func loadTemplateMap(reader io.Reader) (*templateMap, error) {
 	var temp struct {
 		Suffix    string
@@ -183,7 +179,11 @@ func loadTemplateMap(reader io.Reader) (*templateMap, error) {
 		tmap.Add(tmp.Name, tfiles)
 	}
 
-	find(inPath, tmap)
+	err := filepath.Walk(inPath, makeWalkFunc(inPath, tmap))
+	if err != nil {
+		return nil, err
+	}
+
 	return tmap, nil
 }
 
