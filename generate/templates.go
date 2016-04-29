@@ -213,9 +213,6 @@ func generateTemplates() error {
 	}
 
 	cmd := exec.Command("gofmt", "-w", outFile)
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-	return err
+
+	return cmd.Run()
 }
