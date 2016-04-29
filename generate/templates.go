@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -60,10 +61,22 @@ func (tf templateFile) String() string {
 	return fmt.Sprintf("%v%v = `\n%v`\n", baseName, tf.Suffix, string(tf.Content))
 }
 
+type templateFileByName []*templateFile
+
+func (tf templateFileByName) Len() int           { return len(tf) }
+func (tf templateFileByName) Swap(i, j int)      { tf[i], tf[j] = tf[j], tf[i] }
+func (tf templateFileByName) Less(i, j int) bool { return tf[i].Name < tf[j].Name }
+
 type fullTemplate struct {
 	Name          string
 	TemplateFiles []*templateFile
 }
+
+type fullTemplateByName []*fullTemplate
+
+func (ft fullTemplateByName) Len() int           { return len(ft) }
+func (ft fullTemplateByName) Swap(i, j int)      { ft[i], ft[j] = ft[j], ft[i] }
+func (ft fullTemplateByName) Less(i, j int) bool { return ft[i].Name < ft[j].Name }
 
 func (ft *fullTemplate) GetTemplateFilenames() []string {
 	filenames := make([]string, 0, len(ft.TemplateFiles))
@@ -111,6 +124,9 @@ func (tm *templateMap) Templates() []*fullTemplate {
 	for k := range tm.fullTemplates {
 		templates = append(templates, tm.fullTemplates[k])
 	}
+
+	sort.Sort(fullTemplateByName(templates))
+
 	return templates
 }
 
@@ -130,6 +146,9 @@ func (tm *templateMap) TemplateFiles() []*templateFile {
 	for k := range tm.templateFiles {
 		files = append(files, tm.templateFiles[k])
 	}
+
+	sort.Sort(templateFileByName(files))
+
 	return files
 }
 
