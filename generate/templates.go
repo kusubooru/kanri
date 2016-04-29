@@ -88,7 +88,7 @@ type templateMap struct {
 	templateFiles map[string]*templateFile
 }
 
-func NewTemplateMap() *templateMap {
+func newTemplateMap() *templateMap {
 	return &templateMap{
 		fullTemplates: make(map[string]*fullTemplate),
 		templateFiles: make(map[string]*templateFile),
@@ -174,7 +174,7 @@ func loadTemplateMap(reader io.Reader) (*templateMap, error) {
 	if err := json.NewDecoder(reader).Decode(&temp); err != nil {
 		return nil, err
 	}
-	tmap := NewTemplateMap()
+	tmap := newTemplateMap()
 	for _, tmp := range temp.Templates {
 		var tfiles []*templateFile
 		for _, filename := range tmp.Files {
