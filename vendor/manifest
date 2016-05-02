@@ -1,0 +1,27 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/go-sql-driver/mysql",
+			"repository": "https://github.com/go-sql-driver/mysql",
+			"revision": "7ebe0a500653eeb1859664bed5e48dec1e164e73",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kusubooru/shimmie",
+			"repository": "https://github.com/kusubooru/shimmie",
+			"revision": "1e92052afaf0383ebc76b913e4027d5462945080",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "35ec611a141ee705590b9eb64d673f9e6dfeb1ac",
+			"branch": "master",
+			"path": "/context",
+			"notests": true
+		}
+	]
+}
