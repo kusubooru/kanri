@@ -56,7 +56,7 @@ func main() {
 	//}
 
 	// open store with new database connection and create new Shimmie
-	shim := shimmie.New(store.Open(*dbDriver, *dbConfig))
+	shim := shimmie.New(*imagePath, *thumbPath, store.Open(*dbDriver, *dbConfig))
 
 	// get common conf
 	common, cerr := shim.Store.GetCommon()
