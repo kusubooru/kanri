@@ -291,7 +291,7 @@ const (
 {{range .Data}}
 <div class="safe">
 	<div class="safe-thumb">
-		<a href="/kanri/image/{{.Hash}}"><img src="/kanri/thumb/{{.Hash}}"></a>
+		<a href="/kanri/_image/{{.Hash}}"><img src="/kanri/_thumb/{{.Hash}}"></a>
 	</div>
 	<div class="safe-body">
 		<span>Rated by: {{.Rater}} ({{.RaterIP}}) on {{.RateDate}}</span>
