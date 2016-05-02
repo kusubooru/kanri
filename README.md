@@ -1,5 +1,5 @@
 # kanri - 管理
-Management tools for shimmie2.
+Management tools for Shimmie2.
 
 ## Features
 * Safe approval

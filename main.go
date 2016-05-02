@@ -22,24 +22,9 @@ import (
 
 //go:generate go run generate/templates.go
 
-var (
-	httpAddr    = flag.String("http", "localhost:8080", "HTTP listen address")
-	dbDriver    = flag.String("dbdriver", "mysql", "database driver")
-	dbConfig    = flag.String("dbconfig", "", "username:password@(host:port)/database?parseTime=true")
-	loginURL    = flag.String("loginurl", "/kanri/login", "login URL path to redirect to")
-	imagePath   = flag.String("imagepath", "images", "path where images are stored")
-	thumbPath   = flag.String("thumbpath", "thumbs", "path where image thumbnails are stored")
-	showVersion = flag.Bool("v", false, "print program version")
-	certFile    = flag.String("tlscert", "", "TLS public key in PEM format.  Must be used together with -tlskey")
-	keyFile     = flag.String("tlskey", "", "TLS private key in PEM format.  Must be used together with -tlscert")
-	// Set after flag parsing based on certFile & keyFile.
-	useTLS     bool
-	versionArg bool
-)
-
 const (
 	description = `Usage: kanri [options]
-  Management tools for shimmie.
+  Management tools for Shimmie2.
 Options:
 `
 )
@@ -55,6 +40,21 @@ var fns = template.FuncMap{
 }
 
 func main() {
+	var (
+		httpAddr    = flag.String("http", "localhost:8080", "HTTP listen address")
+		dbDriver    = flag.String("dbdriver", "mysql", "database driver")
+		dbConfig    = flag.String("dbconfig", "", "username:password@(host:port)/database?parseTime=true")
+		loginURL    = flag.String("loginurl", "/kanri/login", "login URL path to redirect to")
+		imagePath   = flag.String("imagepath", "", "path where images are stored")
+		thumbPath   = flag.String("thumbpath", "", "path where image thumbnails are stored")
+		showVersion = flag.Bool("v", false, "print program version")
+		certFile    = flag.String("tlscert", "", "TLS public key in PEM format.  Must be used together with -tlskey")
+		keyFile     = flag.String("tlskey", "", "TLS private key in PEM format.  Must be used together with -tlscert")
+		// Set after flag parsing based on certFile & keyFile.
+		useTLS bool
+		// Set after flag parsing; true if "version" is first argument.
+		versionArg bool
+	)
 	flag.Usage = usage
 	flag.Parse()
 	useTLS = *certFile != "" && *keyFile != ""
