@@ -294,7 +294,7 @@ const (
 		<a href="/kanri/_image/{{.Hash}}"><img src="/kanri/_thumb/{{.Hash}}"></a>
 	</div>
 	<div class="safe-body">
-		<span>Rated by: {{.Rater}} ({{.RaterIP}}) on {{.RateDate}}</span>
+		<span><a href="/post/view/{{.ID}}">#{{.ID}}</a> Rated by: {{.Rater}} ({{.RaterIP}}) on {{.RateDateFormat}}</span>
 		<form method="POST" action="/kanri/safe/rate">
 			<input type="hidden" name="id" value="{{.ID}}">
 			<input type="radio" name="rating" value="s" {{if eq .Rating "s"}}checked{{end}}> Safe
