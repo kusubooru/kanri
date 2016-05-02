@@ -44,6 +44,10 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "\n")
 }
 
+var fns = template.FuncMap{
+	"join": strings.Join,
+}
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
