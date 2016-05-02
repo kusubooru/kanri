@@ -72,6 +72,8 @@ func main() {
 
 	http.Handle("/kanri", shim.Auth(ctx, app.serveIndex, *loginURL))
 	http.Handle("/kanri/safe", shim.Auth(ctx, app.serveSafe, *loginURL))
+	http.Handle("/kanri/_image/", shim.Auth(ctx, app.serveImage, *loginURL))
+	http.Handle("/kanri/_thumb/", shim.Auth(ctx, app.serveThumb, *loginURL))
 	http.Handle("/kanri/login", newHandler(ctx, app.serveLogin))
 	http.Handle("/kanri/login/submit", newHandler(ctx, app.handleLogin))
 	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
@@ -111,6 +113,24 @@ func (app *App) serveSafe(ctx context.Context, w http.ResponseWriter, r *http.Re
 		return
 	}
 	app.render(w, safeTmpl, images)
+}
+
+func (app *App) serveImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	app.serveImageFile(ctx, w, r, app.Shimmie.ImagePath)
+}
+
+func (app *App) serveThumb(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	app.serveImageFile(ctx, w, r, app.Shimmie.ThumbPath)
+}
+
+func (app *App) serveImageFile(ctx context.Context, w http.ResponseWriter, r *http.Request, path string) {
+	hash := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
+
+	err := app.Shimmie.WriteImageFile(w, path, hash)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("could not write image file: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (app *App) serveLogin(ctx context.Context, w http.ResponseWriter, r *http.Request) {
