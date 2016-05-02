@@ -107,7 +107,12 @@ func (app *App) serveIndex(ctx context.Context, w http.ResponseWriter, r *http.R
 }
 
 func (app *App) serveSafe(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	images, err := app.Shimmie.GetSafeBustedImages("kusubooru")
+	user, ok := ctx.Value("user").(*shimmie.User)
+	if !ok || user.Admin != "Y" {
+		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
+		return
+	}
+	images, err := app.Shimmie.GetRatedImages(user.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
