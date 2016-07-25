@@ -71,6 +71,11 @@ type Store interface {
 	Log(section, username, address string, priority int, message string) (*SCoreLog, error)
 	// LogRating logs when an image rating is set.
 	LogRating(imgID int, rating, username, userIP string) error
+
+	// GetImageTagHistory returns the previous tags of an image.
+	GetImageTagHistory(imageID int) ([]TagHistory, error)
+	// GetTagHistory returns a tag_history row.
+	GetTagHistory(imageID int) (*TagHistory, error)
 }
 
 // SCoreLog represents a log message in the shimmie log that is stored in the
@@ -143,4 +148,15 @@ type Common struct {
 // SiteTitle returns the Title capitalized.
 func (c Common) SiteTitle() string {
 	return strings.Title(c.Title)
+}
+
+// TagHistory holds previous tags for an image.
+type TagHistory struct {
+	ID      int
+	ImageID int
+	UserID  int
+	UserIP  string
+	Tags    string
+	DateSet *time.Time
+	Name    string
 }

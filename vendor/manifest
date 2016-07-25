@@ -11,7 +11,7 @@
 		{
 			"importpath": "github.com/kusubooru/shimmie",
 			"repository": "https://github.com/kusubooru/shimmie",
-			"revision": "6ad2b8138c6d17e3a11197fb7ccb4cbaea9ef2a8",
+			"revision": "05b781eb8ca444299cbabb8d0a52a7bbd0cc859a",
 			"branch": "master",
 			"notests": true
 		},
