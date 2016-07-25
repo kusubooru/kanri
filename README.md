@@ -3,6 +3,8 @@ Management tools for Shimmie2.
 
 ## Features
 * Safe approval
+* Image tag history
+* Tags diff
 
 ## Installation
 
