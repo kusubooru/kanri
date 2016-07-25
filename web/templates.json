@@ -9,5 +9,12 @@
     }, {
         "Name": "loginTmpl",
         "Files": ["base.tmpl", "login.tmpl"]
+    }, {
+        "Name": "tagHistoryTmpl",
+        "Files": ["base.tmpl", "nav.tmpl", "tag_history.tmpl"]
+    }, {
+        "Name": "tagsDiffTmpl",
+        "Files": ["base.tmpl", "nav.tmpl", "tags_diff.tmpl"]
     }]
+
 }

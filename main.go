@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/context"
@@ -88,6 +87,8 @@ func main() {
 	http.Handle("/kanri/login", newHandler(ctx, app.serveLogin))
 	http.Handle("/kanri/login/submit", newHandler(ctx, app.handleLogin))
 	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
+	http.Handle("/kanri/tags/history", shim.Auth(ctx, app.serveTagHistory, *loginURL))
+	http.Handle("/kanri/tags/diff", shim.Auth(ctx, app.serveTagsDiff, *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
@@ -115,62 +116,6 @@ type App struct {
 
 func (app *App) serveIndex(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	app.render(w, indexTmpl, nil)
-}
-
-func (app *App) serveSafe(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	user, ok := ctx.Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
-		return
-	}
-	images, err := app.Shimmie.GetRatedImages(user.Name)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	app.render(w, safeTmpl, images)
-}
-
-func (app *App) handleSafeRate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	// Only accept POST method.
-	if r.Method != "POST" {
-		http.Error(w, fmt.Sprintf("%v method not allowed", r.Method), http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Get user and user IP from context.
-	user, ok := ctx.Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
-		return
-	}
-	userIP := shimmie.GetOriginalIP(r)
-
-	// Get image ID and rating from the HTTP request.
-	id := r.PostFormValue("id")
-	imgID, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("invalid image ID: %v", err), http.StatusBadRequest)
-		return
-	}
-	imgRating := r.PostFormValue("rating")
-
-	// Store the new image rating.
-	err = app.Shimmie.RateImage(imgID, imgRating)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Write the rating change to the shimmie log.
-	err = app.Shimmie.LogRating(imgID, imgRating, user.Name, userIP)
-	if err != nil {
-		log.Printf("Failed to log rating %q of image %d for username %q (%s) in score_log.",
-			imgRating, imgID, user.Name, userIP)
-	}
-
-	// Serve again the safe approval template.
-	app.serveSafe(ctx, w, r)
 }
 
 func (app *App) serveImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {

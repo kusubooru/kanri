@@ -5,9 +5,11 @@ package main
 import "html/template"
 
 var (
-	indexTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
-	loginTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
-	safeTmpl  = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
+	indexTmpl      = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
+	loginTmpl      = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
+	safeTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
+	tagHistoryTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
+	tagsDiffTmpl   = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
 )
 
 const (
@@ -32,7 +34,7 @@ const (
 	<meta name="description" content="{{.Common.Description}}">
 	<meta name="keywords" content="{{.Common.Keywords}}">
 	<style>
-		* {
+		body {
 			font-size: 16px;
 			line-height: 1.2;
 			font-family: Verdana, Geneva, sans-serif;
@@ -209,6 +211,12 @@ const (
 			border-color: #ebccd1;
 		}
 
+		.alert-info {
+			color: #31708f;
+			background-color: #d9edf7;
+			border-color: #bce8f1;
+		}
+
 
 
 	</style>
@@ -247,6 +255,7 @@ const (
 <div id="subnav">
 	<a href="/kanri">Index</a>
 	<a href="/kanri/safe">Safe Approval</a>
+	<a href="/kanri/tags/history">Tag History</a>
 	<form class="subnav-button-form" method="post" action="/kanri/logout">
 	     <input class="subnav-button-link" type="submit" value="Logout">
 	</form>
@@ -308,6 +317,115 @@ const (
 
 <div class="alert alert-success">
 	<strong>Woot:</strong> Every image rating is approved!
+</div>
+{{end}}
+{{end}}
+`
+	tag_historyTemplate = `
+{{define "title"}}Tag History{{end}}
+{{define "css"}}
+<style>
+	.tag-history-form {
+		margin: 0.5em;
+	}
+	.tag-history-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.compare-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.compare-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+	.tag-history {
+		padding: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+<div class="tag-history-form">
+	<form>
+		<input type="text" name="imageID" placeholder="Enter image ID">
+		<input type="submit" value="Get tag history">
+	</form>
+</div>
+{{if .Data}}
+<form action="/kanri/tags/diff" class="compare-form">
+	<input type="submit" value="Compare">
+	{{range $i, $e := .Data}}
+	<div class="tag-history">
+		<input type="radio" name="new" {{if eq $i 0 }}checked{{end}} value="{{.ID}}">
+		<input type="radio" name="old" {{if eq $i 1 }}checked{{end}} value="{{.ID}}">
+		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a> Set by: {{.Name}} ({{.UserIP}}) on {{.DateSet}}</span>
+		<div>{{.Tags}}</div>
+	</div>
+	{{end}}
+	<input type="hidden" value="{{(index .Data 0).ImageID}}" name="imageID">
+	<input type="submit" value="Compare">
+</form>
+
+{{else}}
+<div class="alert alert-info">
+	<strong>Info:</strong> No tag history for this image.
+</div>
+
+{{end}}
+{{end}}
+`
+	tags_diffTemplate = `
+{{define "title"}}Tags Diff{{end}}
+{{define "css"}}
+<style>
+	.tag-history {
+		margin: 0.5em;
+		display: block;
+		overflow: auto;
+		line-height: 1.2;
+	}
+	.diff {
+		margin: 0.5em;
+		font-family: monospace;
+	}
+	.removed {
+		color: darkred;
+	}
+	.added {
+		color: darkgreen;
+	}
+</style>
+{{end}}
+{{define "content"}}
+{{if .Data}}
+	{{with .Data}}
+	<div class="tag-history">
+		{{with .New}}
+		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a>  ({{.UserIP}}) on {{.DateSet}}</span>
+		<div>{{.Tags}}</div>
+		{{end}}
+	</div>
+	<div class="tag-history">
+		{{with .Old}}
+		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a>  ({{.UserIP}}) on {{.DateSet}}</span>
+		<div>{{.Tags}}</div>
+		{{end}}
+	</div>
+	<div id="diff" class="diff">
+		{{ range $r := .Removed }}
+			<li><strong class="removed">---</strong> {{ $r }}</li>
+		{{ end }}
+		{{ range $a := .Added }}
+			<li><strong class="added">+++</strong> {{ $a }}</li>
+		{{ end }}
+	</div>
+	{{end}}
+
+{{else}}
+<div class="alert alert-info">
+	<strong>Info:</strong> Compare what?
 </div>
 {{end}}
 {{end}}

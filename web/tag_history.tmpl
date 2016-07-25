@@ -1,0 +1,53 @@
+{{define "title"}}Tag History{{end}}
+{{define "css"}}
+<style>
+	.tag-history-form {
+		margin: 0.5em;
+	}
+	.tag-history-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.compare-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.compare-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+	.tag-history {
+		padding: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+<div class="tag-history-form">
+	<form>
+		<input type="text" name="imageID" placeholder="Enter image ID">
+		<input type="submit" value="Get tag history">
+	</form>
+</div>
+{{if .Data}}
+<form action="/kanri/tags/diff" class="compare-form">
+	<input type="submit" value="Compare">
+	{{range $i, $e := .Data}}
+	<div class="tag-history">
+		<input type="radio" name="new" {{if eq $i 0 }}checked{{end}} value="{{.ID}}">
+		<input type="radio" name="old" {{if eq $i 1 }}checked{{end}} value="{{.ID}}">
+		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a> Set by: {{.Name}} ({{.UserIP}}) on {{.DateSet}}</span>
+		<div>{{.Tags}}</div>
+	</div>
+	{{end}}
+	<input type="hidden" value="{{(index .Data 0).ImageID}}" name="imageID">
+	<input type="submit" value="Compare">
+</form>
+
+{{else}}
+<div class="alert alert-info">
+	<strong>Info:</strong> No tag history for this image.
+</div>
+
+{{end}}
+{{end}}
