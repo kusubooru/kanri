@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/kusubooru/shimmie"
 	"github.com/kusubooru/shimmie/tags"
@@ -20,6 +21,7 @@ func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *h
 
 	// get image id
 	imageIDStr := r.FormValue("imageID")
+	imageIDStr = strings.TrimSpace(imageIDStr)
 	if len(imageIDStr) == 0 {
 		app.render(w, tagHistoryTmpl, nil)
 		return
