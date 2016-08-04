@@ -30,7 +30,7 @@ func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *h
 	// get tag history
 	imageID, err := strconv.Atoi(imageIDStr)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Bad Image ID: %v, expecting integer: %v", imageIDStr, err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Bad Image ID: %q, expecting integer: %v", imageIDStr, err), http.StatusBadRequest)
 		return
 	}
 
