@@ -5,11 +5,12 @@ package main
 import "html/template"
 
 var (
-	indexTmpl      = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
-	loginTmpl      = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
-	safeTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
-	tagHistoryTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
-	tagsDiffTmpl   = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
+	indexTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
+	loginTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
+	safeTmpl        = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
+	tagApprovalTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_approvalTemplate))
+	tagHistoryTmpl  = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
+	tagsDiffTmpl    = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
 )
 
 const (
@@ -255,6 +256,7 @@ const (
 <div id="subnav">
 	<a href="/kanri">Index</a>
 	<a href="/kanri/safe">Safe Approval</a>
+	<a href="/kanri/tags/approval">Tag Approval</a>
 	<a href="/kanri/tags/history">Tag History</a>
 	<form class="subnav-button-form" method="post" action="/kanri/logout">
 	     <input class="subnav-button-link" type="submit" value="Logout">
@@ -318,6 +320,45 @@ const (
 <div class="alert alert-success">
 	<strong>Woot:</strong> Every image rating is approved!
 </div>
+{{end}}
+{{end}}
+`
+	tag_approvalTemplate = `
+{{define "title"}}Tag History{{end}}
+{{define "css"}}
+<style>
+	.tag-approval-form {
+		margin: 0.5em;
+	}
+	.tag-approval-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.tag-approval {
+		padding: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+<div class="tag-approval-form">
+	<form>
+		<input type="text" name="ownerUsername" placeholder="Enter owner username">
+		<input type="submit" value="Get contributed tag history">
+	</form>
+</div>
+{{if .Data}}
+{{range $i, $e := .Data}}
+<div class="tag-approval">
+	<span><a href="/kanri/tags/history?imageID={{.ImageID}}">#{{.ImageID}}</a> Set by: {{.TaggerName}} ({{.TaggerIP}}) on {{.DateSet}}</span>
+	<div>{{.Tags}}</div>
+</div>
+{{end}}
+
+{{else}}
+<div class="alert alert-info">
+	<strong>Info:</strong> No contributed tag history found for this user.
+</div>
+
 {{end}}
 {{end}}
 `

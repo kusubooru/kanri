@@ -1,0 +1,37 @@
+{{define "title"}}Tag History{{end}}
+{{define "css"}}
+<style>
+	.tag-approval-form {
+		margin: 0.5em;
+	}
+	.tag-approval-form input {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.tag-approval {
+		padding: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+<div class="tag-approval-form">
+	<form>
+		<input type="text" name="ownerUsername" placeholder="Enter owner username">
+		<input type="submit" value="Get contributed tag history">
+	</form>
+</div>
+{{if .Data}}
+{{range $i, $e := .Data}}
+<div class="tag-approval">
+	<span><a href="/kanri/tags/history?imageID={{.ImageID}}">#{{.ImageID}}</a> Set by: {{.TaggerName}} ({{.TaggerIP}}) on {{.DateSet}}</span>
+	<div>{{.Tags}}</div>
+</div>
+{{end}}
+
+{{else}}
+<div class="alert alert-info">
+	<strong>Info:</strong> No contributed tag history found for this user.
+</div>
+
+{{end}}
+{{end}}

@@ -11,6 +11,30 @@ import (
 	"golang.org/x/net/context"
 )
 
+func (app *App) serveTagApproval(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	// check for admin
+	user, ok := ctx.Value("user").(*shimmie.User)
+	if !ok || user.Admin != "Y" {
+		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
+		return
+	}
+
+	// get owner username
+	ownerUsername := r.FormValue("ownerUsername")
+	ownerUsername = strings.TrimSpace(ownerUsername)
+	if len(ownerUsername) == 0 {
+		ownerUsername = "kusubooru"
+	}
+
+	ths, err := app.Shimmie.GetContributedTagHistory(ownerUsername)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	app.render(w, tagApprovalTmpl, ths)
+}
+
 func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	// check for admin
 	user, ok := ctx.Value("user").(*shimmie.User)
