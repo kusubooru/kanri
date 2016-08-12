@@ -88,6 +88,7 @@ func main() {
 	http.Handle("/kanri/login/submit", newHandler(ctx, app.handleLogin))
 	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
 	http.Handle("/kanri/tags/history", shim.Auth(ctx, app.serveTagHistory, *loginURL))
+	http.Handle("/kanri/tags/history/diff", shim.Auth(ctx, app.handleTagHistoryDiff, *loginURL))
 	http.Handle("/kanri/tags/diff", shim.Auth(ctx, app.serveTagsDiff, *loginURL))
 	http.Handle("/kanri/tags/approval", shim.Auth(ctx, app.serveTagApproval, *loginURL))
 

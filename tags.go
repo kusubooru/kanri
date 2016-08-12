@@ -68,10 +68,25 @@ func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *h
 }
 
 func (app *App) serveTagsDiff(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	old := r.PostFormValue("old")
+	new := r.PostFormValue("new")
+	removed, added := tags.DiffFields(old, new)
+
+	data := struct {
+		Old     string
+		New     string
+		Removed []string
+		Added   []string
+	}{old, new, removed, added}
+
+	app.render(w, tagsDiffTmpl, data)
+}
+
+func (app *App) handleTagHistoryDiff(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	new := r.FormValue("new")
 	old := r.FormValue("old")
 	if len(new) == 0 && len(old) == 0 {
-		app.render(w, tagsDiffTmpl, nil)
+		app.render(w, tagHistoryDiffTmpl, nil)
 		return
 	}
 	newID, err := strconv.Atoi(new)
@@ -97,7 +112,7 @@ func (app *App) serveTagsDiff(ctx context.Context, w http.ResponseWriter, r *htt
 
 	removed, added := tags.DiffFields(thOld.Tags, thNew.Tags)
 
-	app.render(w, tagsDiffTmpl, struct {
+	app.render(w, tagHistoryDiffTmpl, struct {
 		Old     *shimmie.TagHistory
 		New     *shimmie.TagHistory
 		Removed []string

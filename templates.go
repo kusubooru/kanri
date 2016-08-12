@@ -5,12 +5,13 @@ package main
 import "html/template"
 
 var (
-	indexTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
-	loginTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
-	safeTmpl        = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
-	tagApprovalTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_approvalTemplate))
-	tagHistoryTmpl  = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
-	tagsDiffTmpl    = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
+	indexTmpl          = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + indexTemplate))
+	loginTmpl          = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + loginTemplate))
+	safeTmpl           = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + safeTemplate))
+	tagApprovalTmpl    = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_approvalTemplate))
+	tagHistoryDiffTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_history_diffTemplate))
+	tagHistoryTmpl     = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
+	tagsDiffTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
 )
 
 const (
@@ -258,6 +259,7 @@ const (
 	<a href="/kanri/safe">Safe Approval</a>
 	<a href="/kanri/tags/approval">Tag Approval</a>
 	<a href="/kanri/tags/history">Tag History</a>
+	<a href="/kanri/tags/diff">Tags Diff</a>
 	<form class="subnav-button-form" method="post" action="/kanri/logout">
 	     <input class="subnav-button-link" type="submit" value="Logout">
 	</form>
@@ -395,7 +397,7 @@ const (
 	</form>
 </div>
 {{if .Data}}
-<form action="/kanri/tags/diff" class="compare-form">
+<form action="/kanri/tags/history/diff" class="compare-form">
 	<input type="submit" value="Compare">
 	{{range $i, $e := .Data}}
 	<div class="tag-history">
@@ -417,7 +419,7 @@ const (
 {{end}}
 {{end}}
 `
-	tags_diffTemplate = `
+	tag_history_diffTemplate = `
 {{define "title"}}Tags Diff{{end}}
 {{define "css"}}
 <style>
@@ -469,6 +471,59 @@ const (
 	<strong>Info:</strong> Compare what?
 </div>
 {{end}}
+{{end}}
+`
+	tags_diffTemplate = `
+{{define "title"}}Tags Diff{{end}}
+{{define "css"}}
+<style>
+	.diff-form {
+		margin: 0.5em;
+	}
+	.diff-form textarea {
+		font-size: 120%;
+		display: block;
+		margin: 0.5em;
+	}
+	.diff-form label {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.diff-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+	.diff {
+		margin: 0.5em;
+		font-family: monospace;
+	}
+	.removed {
+		color: darkred;
+	}
+	.added {
+		color: darkgreen;
+	}
+</style>
+{{end}}
+{{define "content"}}
+	{{with .Data}}
+	<form method="post" class="diff-form">
+		<label for="old"><strong>Old Tags</strong></label>
+		<textarea id="old" name="old" cols="60" rows="7">{{ .Old }}</textarea>
+		<label for="new"><strong>New Tags</strong></label>
+		<textarea id="new" name="new" cols="60" rows="7">{{ .New }}</textarea>
+		<input type="submit" value="Compare">
+	</form>
+	<div id="diff" class="diff">
+		{{ range $r := .Removed }}
+			<li><strong class="removed">---</strong> {{ $r }}</li>
+		{{ end }}
+		{{ range $a := .Added }}
+			<li><strong class="added">+++</strong> {{ $a }}</li>
+		{{ end }}
+	</div>
+	{{end}}
 {{end}}
 `
 )

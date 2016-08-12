@@ -1,11 +1,22 @@
 {{define "title"}}Tags Diff{{end}}
 {{define "css"}}
 <style>
-	.tag-history {
+	.diff-form {
 		margin: 0.5em;
+	}
+	.diff-form textarea {
+		font-size: 120%;
 		display: block;
-		overflow: auto;
-		line-height: 1.2;
+		margin: 0.5em;
+	}
+	.diff-form label {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.diff-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
 	}
 	.diff {
 		margin: 0.5em;
@@ -20,20 +31,14 @@
 </style>
 {{end}}
 {{define "content"}}
-{{if .Data}}
 	{{with .Data}}
-	<div class="tag-history">
-		{{with .New}}
-		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a>  ({{.UserIP}}) on {{.DateSet}}</span>
-		<div>{{.Tags}}</div>
-		{{end}}
-	</div>
-	<div class="tag-history">
-		{{with .Old}}
-		<span><a href="/post/view/{{.ImageID}}">#{{.ImageID}}</a>  ({{.UserIP}}) on {{.DateSet}}</span>
-		<div>{{.Tags}}</div>
-		{{end}}
-	</div>
+	<form method="post" class="diff-form">
+		<label for="old"><strong>Old Tags</strong></label>
+		<textarea id="old" name="old" cols="60" rows="7">{{ .Old }}</textarea>
+		<label for="new"><strong>New Tags</strong></label>
+		<textarea id="new" name="new" cols="60" rows="7">{{ .New }}</textarea>
+		<input type="submit" value="Compare">
+	</form>
 	<div id="diff" class="diff">
 		{{ range $r := .Removed }}
 			<li><strong class="removed">---</strong> {{ $r }}</li>
@@ -43,10 +48,4 @@
 		{{ end }}
 	</div>
 	{{end}}
-
-{{else}}
-<div class="alert alert-info">
-	<strong>Info:</strong> Compare what?
-</div>
-{{end}}
 {{end}}

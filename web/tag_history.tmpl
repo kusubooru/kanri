@@ -30,7 +30,7 @@
 	</form>
 </div>
 {{if .Data}}
-<form action="/kanri/tags/diff" class="compare-form">
+<form action="/kanri/tags/history/diff" class="compare-form">
 	<input type="submit" value="Compare">
 	{{range $i, $e := .Data}}
 	<div class="tag-history">

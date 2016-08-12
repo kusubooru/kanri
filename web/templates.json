@@ -16,6 +16,9 @@
         "Name": "tagApprovalTmpl",
         "Files": ["base.tmpl", "nav.tmpl", "tag_approval.tmpl"]
     }, {
+        "Name": "tagHistoryDiffTmpl",
+        "Files": ["base.tmpl", "nav.tmpl", "tag_history_diff.tmpl"]
+    }, {
         "Name": "tagsDiffTmpl",
         "Files": ["base.tmpl", "nav.tmpl", "tags_diff.tmpl"]
     }]
