@@ -7,11 +7,10 @@ import (
 	"strconv"
 
 	"github.com/kusubooru/shimmie"
-	"golang.org/x/net/context"
 )
 
-func (app *App) serveSafe(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	user, ok := ctx.Value("user").(*shimmie.User)
+func (app *App) serveSafe(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value("user").(*shimmie.User)
 	if !ok || user.Admin != "Y" {
 		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
 		return
@@ -24,7 +23,7 @@ func (app *App) serveSafe(ctx context.Context, w http.ResponseWriter, r *http.Re
 	app.render(w, safeTmpl, images)
 }
 
-func (app *App) handleSafeRate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) handleSafeRate(w http.ResponseWriter, r *http.Request) {
 	// Only accept POST method.
 	if r.Method != "POST" {
 		http.Error(w, fmt.Sprintf("%v method not allowed", r.Method), http.StatusMethodNotAllowed)
@@ -32,7 +31,7 @@ func (app *App) handleSafeRate(ctx context.Context, w http.ResponseWriter, r *ht
 	}
 
 	// Get user and user IP from context.
-	user, ok := ctx.Value("user").(*shimmie.User)
+	user, ok := r.Context().Value("user").(*shimmie.User)
 	if !ok || user.Admin != "Y" {
 		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
 		return
@@ -63,5 +62,5 @@ func (app *App) handleSafeRate(ctx context.Context, w http.ResponseWriter, r *ht
 	}
 
 	// Serve again the safe approval template.
-	app.serveSafe(ctx, w, r)
+	app.serveSafe(w, r)
 }

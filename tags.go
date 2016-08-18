@@ -8,12 +8,11 @@ import (
 
 	"github.com/kusubooru/shimmie"
 	"github.com/kusubooru/shimmie/tags"
-	"golang.org/x/net/context"
 )
 
-func (app *App) serveTagApproval(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) serveTagApproval(w http.ResponseWriter, r *http.Request) {
 	// check for admin
-	user, ok := ctx.Value("user").(*shimmie.User)
+	user, ok := r.Context().Value("user").(*shimmie.User)
 	if !ok || user.Admin != "Y" {
 		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
 		return
@@ -35,9 +34,9 @@ func (app *App) serveTagApproval(ctx context.Context, w http.ResponseWriter, r *
 	app.render(w, tagApprovalTmpl, ths)
 }
 
-func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) serveTagHistory(w http.ResponseWriter, r *http.Request) {
 	// check for admin
-	user, ok := ctx.Value("user").(*shimmie.User)
+	user, ok := r.Context().Value("user").(*shimmie.User)
 	if !ok || user.Admin != "Y" {
 		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
 		return
@@ -67,7 +66,7 @@ func (app *App) serveTagHistory(ctx context.Context, w http.ResponseWriter, r *h
 	app.render(w, tagHistoryTmpl, ths)
 }
 
-func (app *App) serveTagsDiff(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) serveTagsDiff(w http.ResponseWriter, r *http.Request) {
 	old := r.PostFormValue("old")
 	new := r.PostFormValue("new")
 	removed, added := tags.DiffFields(old, new)
@@ -82,7 +81,7 @@ func (app *App) serveTagsDiff(ctx context.Context, w http.ResponseWriter, r *htt
 	app.render(w, tagsDiffTmpl, data)
 }
 
-func (app *App) handleTagHistoryDiff(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) handleTagHistoryDiff(w http.ResponseWriter, r *http.Request) {
 	new := r.FormValue("new")
 	old := r.FormValue("old")
 	if len(new) == 0 && len(old) == 0 {

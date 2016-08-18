@@ -12,8 +12,6 @@ import (
 	"runtime"
 	"strings"
 
-	"golang.org/x/net/context"
-
 	"github.com/kusubooru/kanri/version"
 	"github.com/kusubooru/shimmie"
 	"github.com/kusubooru/shimmie/store"
@@ -76,21 +74,18 @@ func main() {
 	// app with Shimmie and common conf
 	app := App{Shimmie: shim, Common: common}
 
-	// new context
-	ctx := context.Background()
-
-	http.Handle("/kanri", shim.Auth(ctx, app.serveIndex, *loginURL))
-	http.Handle("/kanri/safe", shim.Auth(ctx, app.serveSafe, *loginURL))
-	http.Handle("/kanri/safe/rate", shim.Auth(ctx, app.handleSafeRate, *loginURL))
-	http.Handle("/kanri/_image/", shim.Auth(ctx, app.serveImage, *loginURL))
-	http.Handle("/kanri/_thumb/", shim.Auth(ctx, app.serveThumb, *loginURL))
-	http.Handle("/kanri/login", newHandler(ctx, app.serveLogin))
-	http.Handle("/kanri/login/submit", newHandler(ctx, app.handleLogin))
+	http.Handle("/kanri", shim.Auth(app.serveIndex, *loginURL))
+	http.Handle("/kanri/safe", shim.Auth(app.serveSafe, *loginURL))
+	http.Handle("/kanri/safe/rate", shim.Auth(app.handleSafeRate, *loginURL))
+	http.Handle("/kanri/_image/", shim.Auth(app.serveImage, *loginURL))
+	http.Handle("/kanri/_thumb/", shim.Auth(app.serveThumb, *loginURL))
+	http.Handle("/kanri/login", http.HandlerFunc(app.serveLogin))
+	http.Handle("/kanri/login/submit", http.HandlerFunc(app.handleLogin))
 	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
-	http.Handle("/kanri/tags/history", shim.Auth(ctx, app.serveTagHistory, *loginURL))
-	http.Handle("/kanri/tags/history/diff", shim.Auth(ctx, app.handleTagHistoryDiff, *loginURL))
-	http.Handle("/kanri/tags/diff", shim.Auth(ctx, app.serveTagsDiff, *loginURL))
-	http.Handle("/kanri/tags/approval", shim.Auth(ctx, app.serveTagApproval, *loginURL))
+	http.Handle("/kanri/tags/history", shim.Auth(app.serveTagHistory, *loginURL))
+	http.Handle("/kanri/tags/history/diff", shim.Auth(app.handleTagHistoryDiff, *loginURL))
+	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
+	http.Handle("/kanri/tags/approval", shim.Auth(app.serveTagApproval, *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
@@ -103,32 +98,24 @@ func main() {
 	}
 }
 
-type ctxHandlerFunc func(context.Context, http.ResponseWriter, *http.Request)
-
-func newHandler(ctx context.Context, fn ctxHandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fn(ctx, w, r)
-	}
-}
-
 type App struct {
 	Shimmie *shimmie.Shimmie
 	Common  *shimmie.Common
 }
 
-func (app *App) serveIndex(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) serveIndex(w http.ResponseWriter, r *http.Request) {
 	app.render(w, indexTmpl, nil)
 }
 
-func (app *App) serveImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	app.serveImageFile(ctx, w, r, app.Shimmie.ImagePath)
+func (app *App) serveImage(w http.ResponseWriter, r *http.Request) {
+	app.serveImageFile(w, r, app.Shimmie.ImagePath)
 }
 
-func (app *App) serveThumb(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	app.serveImageFile(ctx, w, r, app.Shimmie.ThumbPath)
+func (app *App) serveThumb(w http.ResponseWriter, r *http.Request) {
+	app.serveImageFile(w, r, app.Shimmie.ThumbPath)
 }
 
-func (app *App) serveImageFile(ctx context.Context, w http.ResponseWriter, r *http.Request, path string) {
+func (app *App) serveImageFile(w http.ResponseWriter, r *http.Request, path string) {
 	hash := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
 
 	err := app.Shimmie.WriteImageFile(w, path, hash)
@@ -138,11 +125,11 @@ func (app *App) serveImageFile(ctx context.Context, w http.ResponseWriter, r *ht
 	}
 }
 
-func (app *App) serveLogin(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) serveLogin(w http.ResponseWriter, r *http.Request) {
 	app.render(w, loginTmpl, nil)
 }
 
-func (app *App) handleLogin(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// only accept POST method
 	if r.Method != "POST" {
 		http.Error(w, fmt.Sprintf("%v method not allowed", r.Method), http.StatusMethodNotAllowed)
