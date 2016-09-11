@@ -162,6 +162,10 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Use POST to logout.", http.StatusMethodNotAllowed)
+		return
+	}
 	shimmie.SetCookie(w, "shm_user", "")
 	shimmie.SetCookie(w, "shm_session", "")
 	http.Redirect(w, r, "/kanri", http.StatusFound)
