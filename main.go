@@ -137,7 +137,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
-	user, err := app.Shimmie.GetUser(username)
+	user, err := app.Shimmie.GetUserByName(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			app.render(w, loginTmpl, "User does not exist.")
