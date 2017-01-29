@@ -59,7 +59,7 @@ func main() {
 
 	if *showVersion || versionArg {
 		fmt.Printf("%s %s (runtime: %s)\n", os.Args[0], theVersion, runtime.Version())
-		return nil
+		return
 	}
 
 	// open store with new database connection and create new Shimmie
