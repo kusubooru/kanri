@@ -12,7 +12,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/kusubooru/kanri/version"
 	"github.com/kusubooru/shimmie"
 	"github.com/kusubooru/shimmie/store"
 )
@@ -38,6 +37,7 @@ var fns = template.FuncMap{
 
 func main() {
 	var (
+		theVersion  = "devel"
 		httpAddr    = flag.String("http", "localhost:8080", "HTTP listen address")
 		dbDriver    = flag.String("dbdriver", "mysql", "database driver")
 		dbConfig    = flag.String("dbconfig", "", "username:password@(host:port)/database?parseTime=true")
@@ -58,8 +58,8 @@ func main() {
 	versionArg = len(os.Args) > 1 && os.Args[1] == "version"
 
 	if *showVersion || versionArg {
-		fmt.Printf("kanri version %v %v/%v\n", version.Core, runtime.GOOS, runtime.GOARCH)
-		return
+		fmt.Printf("%s %s (runtime: %s)\n", os.Args[0], theVersion, runtime.Version())
+		return nil
 	}
 
 	// open store with new database connection and create new Shimmie
