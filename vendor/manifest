@@ -4,6 +4,7 @@
 		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
+			"vcs": "",
 			"revision": "7ebe0a500653eeb1859664bed5e48dec1e164e73",
 			"branch": "master",
 			"notests": true
@@ -11,7 +12,8 @@
 		{
 			"importpath": "github.com/kusubooru/shimmie",
 			"repository": "https://github.com/kusubooru/shimmie",
-			"revision": "33a33b5f0e12ae7fcc1cfd5c79c0dfb326e3ace1",
+			"vcs": "git",
+			"revision": "0b14914c433b65922698a5f60126e23349095c9e",
 			"branch": "master",
 			"notests": true
 		}
