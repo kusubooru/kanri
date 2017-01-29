@@ -10,9 +10,9 @@ import (
 )
 
 func (app *App) serveSafe(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
+	user, ok := shimmie.FromContextGetUser(r.Context())
+	if !ok {
+		http.Redirect(w, r, "/kanri", http.StatusFound)
 		return
 	}
 	images, err := app.Shimmie.GetRatedImages(user.Name)
@@ -31,9 +31,9 @@ func (app *App) handleSafeRate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user and user IP from context.
-	user, ok := r.Context().Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
+	user, ok := shimmie.FromContextGetUser(r.Context())
+	if !ok {
+		http.Redirect(w, r, "/kanri", http.StatusFound)
 		return
 	}
 	userIP := shimmie.GetOriginalIP(r)

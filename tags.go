@@ -11,13 +11,6 @@ import (
 )
 
 func (app *App) serveTagApproval(w http.ResponseWriter, r *http.Request) {
-	// check for admin
-	user, ok := r.Context().Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
-		return
-	}
-
 	// get owner username
 	ownerUsername := r.FormValue("ownerUsername")
 	ownerUsername = strings.TrimSpace(ownerUsername)
@@ -35,13 +28,6 @@ func (app *App) serveTagApproval(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) serveTagHistory(w http.ResponseWriter, r *http.Request) {
-	// check for admin
-	user, ok := r.Context().Value("user").(*shimmie.User)
-	if !ok || user.Admin != "Y" {
-		http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
-		return
-	}
-
 	// get image id
 	imageIDStr := r.FormValue("imageID")
 	imageIDStr = strings.TrimSpace(imageIDStr)

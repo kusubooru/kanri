@@ -75,17 +75,17 @@ func main() {
 	app := App{Shimmie: shim, Common: common}
 
 	http.Handle("/kanri", shim.Auth(app.serveIndex, *loginURL))
-	http.Handle("/kanri/safe", shim.Auth(app.serveSafe, *loginURL))
-	http.Handle("/kanri/safe/rate", shim.Auth(app.handleSafeRate, *loginURL))
+	http.Handle("/kanri/safe", shim.Auth(mustAdmin(app.serveSafe), *loginURL))
+	http.Handle("/kanri/safe/rate", shim.Auth(mustAdmin(app.handleSafeRate), *loginURL))
 	http.Handle("/kanri/_image/", shim.Auth(app.serveImage, *loginURL))
 	http.Handle("/kanri/_thumb/", shim.Auth(app.serveThumb, *loginURL))
 	http.Handle("/kanri/login", http.HandlerFunc(app.serveLogin))
 	http.Handle("/kanri/login/submit", http.HandlerFunc(app.handleLogin))
 	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
-	http.Handle("/kanri/tags/history", shim.Auth(app.serveTagHistory, *loginURL))
-	http.Handle("/kanri/tags/history/diff", shim.Auth(app.handleTagHistoryDiff, *loginURL))
+	http.Handle("/kanri/tags/history", shim.Auth(mustAdmin(app.serveTagHistory), *loginURL))
+	http.Handle("/kanri/tags/history/diff", shim.Auth(mustAdmin(app.handleTagHistoryDiff), *loginURL))
 	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
-	http.Handle("/kanri/tags/approval", shim.Auth(app.serveTagApproval, *loginURL))
+	http.Handle("/kanri/tags/approval", shim.Auth(mustAdmin(app.serveTagApproval), *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
@@ -188,4 +188,18 @@ func (app *App) render(w http.ResponseWriter, t *template.Template, data interfa
 		Data:   data,
 		Common: app.Common,
 	})
+}
+
+// mustAdmin checks context to see if user is admin and sends error
+// Unauthorized ifthey are not.
+func mustAdmin(fn http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Get user and user IP from context.
+		user, ok := shimmie.FromContextGetUser(r.Context())
+		if !ok || user.Admin != "Y" {
+			http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
+			return
+		}
+		fn.ServeHTTP(w, r)
+	}
 }
