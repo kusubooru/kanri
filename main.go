@@ -11,6 +11,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/kusubooru/shimmie"
 	"github.com/kusubooru/shimmie/store"
@@ -33,6 +34,15 @@ func usage() {
 
 var fns = template.FuncMap{
 	"join": strings.Join,
+	"filterEmpty": func(s, filter string) string {
+		if s == "" {
+			return filter
+		}
+		return s
+	},
+	"formatTime": func(t time.Time) string {
+		return t.Format("January 2, 2006; 15:04")
+	},
 }
 
 func main() {

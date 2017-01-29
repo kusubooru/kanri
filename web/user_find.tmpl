@@ -1,35 +1,45 @@
 {{define "title"}}Find User{{end}}
 {{define "css"}}
   <style>
-    .user-search-form {
+    .user-find-form {
       margin: 0.5em;
     }
-    .user-search-form input {
+    .user-find-form input {
       font-size: 120%;
       padding: 0.5em;
     }
-    .user-search{
+    .user-find{
       font-size: 120%;
       margin: 0.5em;
     }
-    .user-search input {
+    .user-find input {
       padding: 0.5em;
+    }
+    .user-find label {
+      padding: 0.5em;
+    }
+    .user-stat {
+      display: block;
     }
   </style>
 {{end}}
 
 {{define "content"}}
-  <div class="user-search-form">
+  <div class="user-find-form">
     <form method="POST" action="/kanri/user/find">
       <input type="text" name="userID" placeholder="Enter user ID">
-      <input type="submit" value="Search user">
+      <input type="submit" value="Find user">
     </form>
   </div>
 
   {{if .Data}}
     {{with .Data}}
-    <div class="user-search">
-      <span><a href="/user/{{.Name}}">#{{.ID}}</a> {{.Name}}</span>
+    <div class="user-find">
+      <span class="user-stat" id="userIDField"><label for="userIDField">ID:</label> <a href="/user/{{.Name}}">#{{.ID}}</a></span>
+      <span class="user-stat" id="userNameField"><label for="userNameField">Name:</label> {{.Name}}</span>
+      <span class="user-stat" id="userClassField"><label for="userClassField">Class:</label> {{.Class}}</span>
+      <span class="user-stat" id="userJoinedField"><label for="userJoinedField">Joined:</label> {{formatTime .JoinDate}}</span>
+      <span class="user-stat" id="userEmailField"><label for="userEmailField">Email:</label> {{filterEmpty .Email "-"}}</span>
     </div>
     {{end}}
 
