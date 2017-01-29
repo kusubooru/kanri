@@ -1,0 +1,41 @@
+{{define "title"}}Find User{{end}}
+{{define "css"}}
+  <style>
+    .user-search-form {
+      margin: 0.5em;
+    }
+    .user-search-form input {
+      font-size: 120%;
+      padding: 0.5em;
+    }
+    .user-search{
+      font-size: 120%;
+      margin: 0.5em;
+    }
+    .user-search input {
+      padding: 0.5em;
+    }
+  </style>
+{{end}}
+
+{{define "content"}}
+  <div class="user-search-form">
+    <form method="POST" action="/kanri/user/find">
+      <input type="text" name="userID" placeholder="Enter user ID">
+      <input type="submit" value="Search user">
+    </form>
+  </div>
+
+  {{if .Data}}
+    {{with .Data}}
+    <div class="user-search">
+      <span><a href="/user/{{.Name}}">#{{.ID}}</a> {{.Name}}</span>
+    </div>
+    {{end}}
+
+  {{else}}
+    <div class="alert alert-info">
+      <strong>Info:</strong> No user with that ID found.
+    </div>
+  {{end}}
+{{end}}

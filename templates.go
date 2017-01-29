@@ -12,6 +12,7 @@ var (
 	tagHistoryDiffTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_history_diffTemplate))
 	tagHistoryTmpl     = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
 	tagsDiffTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
+	userFindTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + user_findTemplate))
 )
 
 const (
@@ -260,6 +261,7 @@ const (
 	<a href="/kanri/tags/approval">Tag Approval</a>
 	<a href="/kanri/tags/history">Tag History</a>
 	<a href="/kanri/tags/diff">Tags Diff</a>
+	<a href="/kanri/user/find">User Find</a>
 	<form class="subnav-button-form" method="post" action="/kanri/logout">
 	     <input class="subnav-button-link" type="submit" value="Logout">
 	</form>
@@ -524,6 +526,49 @@ const (
 		{{ end }}
 	</div>
 	{{end}}
+{{end}}
+`
+	user_findTemplate = `
+{{define "title"}}Find User{{end}}
+{{define "css"}}
+  <style>
+    .user-search-form {
+      margin: 0.5em;
+    }
+    .user-search-form input {
+      font-size: 120%;
+      padding: 0.5em;
+    }
+    .user-search{
+      font-size: 120%;
+      margin: 0.5em;
+    }
+    .user-search input {
+      padding: 0.5em;
+    }
+  </style>
+{{end}}
+
+{{define "content"}}
+  <div class="user-search-form">
+    <form method="POST" action="/kanri/user/find">
+      <input type="text" name="userID" placeholder="Enter user ID">
+      <input type="submit" value="Search user">
+    </form>
+  </div>
+
+  {{if .Data}}
+    {{with .Data}}
+    <div class="user-search">
+      <span><a href="/user/{{.Name}}">#{{.ID}}</a> {{.Name}}</span>
+    </div>
+    {{end}}
+
+  {{else}}
+    <div class="alert alert-info">
+      <strong>Info:</strong> No user with that ID found.
+    </div>
+  {{end}}
 {{end}}
 `
 )

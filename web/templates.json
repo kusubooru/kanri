@@ -21,6 +21,9 @@
     }, {
         "Name": "tagsDiffTmpl",
         "Files": ["base.tmpl", "nav.tmpl", "tags_diff.tmpl"]
+    }, {
+        "Name": "userFindTmpl",
+        "Files": ["base.tmpl", "nav.tmpl", "user_find.tmpl"]
     }]
 
 }

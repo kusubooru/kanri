@@ -86,6 +86,7 @@ func main() {
 	http.Handle("/kanri/tags/history/diff", shim.Auth(mustAdmin(app.handleTagHistoryDiff), *loginURL))
 	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
 	http.Handle("/kanri/tags/approval", shim.Auth(mustAdmin(app.serveTagApproval), *loginURL))
+	http.Handle("/kanri/user/find", shim.Auth(mustAdmin(app.serveUserFind), *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
