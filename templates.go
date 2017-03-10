@@ -327,9 +327,12 @@ const (
 		<span><a href="/post/view/{{.ID}}">#{{.ID}}</a> Rated by: {{.Rater}} ({{.RaterIP}}) on {{.RateDateFormat}}</span>
 		<form method="POST" action="/kanri/safe/rate">
 			<input type="hidden" name="id" value="{{.ID}}">
-			<input type="radio" name="rating" value="s" {{if eq .Rating "s"}}checked{{end}}> Safe
-			<input type="radio" name="rating" value="q" {{if eq .Rating "q"}}checked{{end}}> Questionable
-			<input type="radio" name="rating" value="e" {{if eq .Rating "e"}}checked{{end}}> Explicit
+			<input id="sInput{{.ID}}" type="radio" name="rating" value="s" {{if eq .Rating "s"}}checked{{end}}>
+			<label for="sInput{{.ID}}">Safe</label>
+			<input id="qInput{{.ID}}" type="radio" name="rating" value="q" {{if eq .Rating "q"}}checked{{end}}>
+			<label for="qInput{{.ID}}">Questionable</label>
+			<input id="eInput{{.ID}}" type="radio" name="rating" value="e" {{if eq .Rating "e"}}checked{{end}}>
+			<label for="eInput{{.ID}}">Explicit</label>
 			<input type="submit" value="Rate">
 		</form>
 	</div>
