@@ -220,6 +220,17 @@ const (
 			border-color: #bce8f1;
 		}
 
+		footer {
+			color: #ccc;
+			font-size: 0.9em;
+			padding-left: 0.5em;
+			padding-top: 1em;
+		}
+
+		footer a {
+			font-size: 0.9em;
+		}
+
 
 
 	</style>
@@ -229,6 +240,10 @@ const (
 	<h1 id="site-title"><a href="/post/list">{{.Common.SiteTitle}}</a></h1>
 	{{block "subnav" .}}{{end}}
 	{{block "content" .}}{{end}}
+	<footer>
+		{{block "footer" .}}{{end}}
+		<em>Served by <a href="https://github.com/kusubooru/kanri">kanri</a> {{printv .Version}}</em>
+	</footer>
 </body>
 </html>
 `

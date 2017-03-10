@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -32,22 +33,32 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "\n")
 }
 
-var fns = template.FuncMap{
-	"join": strings.Join,
-	"filterEmpty": func(s, filter string) string {
-		if s == "" {
-			return filter
-		}
-		return s
-	},
-	"formatTime": func(t time.Time) string {
-		return t.Format("January 2, 2006; 15:04")
-	},
-}
+var (
+	theVersion = "devel"
+	versionRx  = regexp.MustCompile(`\d.*`)
+	fns        = template.FuncMap{
+		"join": strings.Join,
+		"filterEmpty": func(s, filter string) string {
+			if s == "" {
+				return filter
+			}
+			return s
+		},
+		"formatTime": func(t time.Time) string {
+			return t.Format("January 2, 2006; 15:04")
+		},
+		"printv": func(version string) string {
+			// If version starts with a digit, add 'v'.
+			if versionRx.Match([]byte(version)) {
+				version = "v" + version
+			}
+			return version
+		},
+	}
+)
 
 func main() {
 	var (
-		theVersion  = "devel"
 		httpAddr    = flag.String("http", "localhost:8080", "HTTP listen address")
 		dbDriver    = flag.String("dbdriver", "mysql", "database driver")
 		dbConfig    = flag.String("dbconfig", "", "username:password@(host:port)/database?parseTime=true")
@@ -56,7 +67,7 @@ func main() {
 		thumbPath   = flag.String("thumbpath", "", "path where image thumbnails are stored")
 		showVersion = flag.Bool("v", false, "print program version")
 		certFile    = flag.String("tlscert", "", "TLS public key in PEM format.  Must be used together with -tlskey")
-		keyFile     = flag.String("tlskey", "", "TLS private key in PEM format.  Must be used together with -tlscert")
+		keyFile     = flag.String("tlskey", "", "TLS private key in PEM format. Must be used together with -tlscert")
 		// Set after flag parsing based on certFile & keyFile.
 		useTLS bool
 		// Set after flag parsing; true if "version" is first argument.
@@ -82,7 +93,7 @@ func main() {
 	}
 
 	// app with Shimmie and common conf
-	app := App{Shimmie: shim, Common: common}
+	app := App{Shimmie: shim, Common: common, Version: theVersion}
 
 	http.Handle("/kanri", shim.Auth(app.serveIndex, *loginURL))
 	http.Handle("/kanri/safe", shim.Auth(mustAdmin(app.serveSafe), *loginURL))
@@ -112,6 +123,7 @@ func main() {
 type App struct {
 	Shimmie *shimmie.Shimmie
 	Common  *shimmie.Common
+	Version string
 }
 
 func (app *App) serveIndex(w http.ResponseWriter, r *http.Request) {
@@ -193,11 +205,13 @@ func render(w http.ResponseWriter, t *template.Template, data interface{}) {
 
 func (app *App) render(w http.ResponseWriter, t *template.Template, data interface{}) {
 	render(w, t, struct {
-		Data   interface{}
-		Common *shimmie.Common
+		Data    interface{}
+		Common  *shimmie.Common
+		Version string
 	}{
-		Data:   data,
-		Common: app.Common,
+		Data:    data,
+		Common:  app.Common,
+		Version: app.Version,
 	})
 }
 
