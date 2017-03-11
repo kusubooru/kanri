@@ -577,6 +577,7 @@ const (
   <div class="user-find-form">
     <form method="POST" action="/kanri/user/find">
       <input type="text" name="userID" placeholder="Enter user ID">
+      <input type="text" name="username" placeholder="Enter username">
       <input type="submit" value="Find user">
     </form>
   </div>
@@ -594,7 +595,7 @@ const (
 
   {{else}}
     <div class="alert alert-info">
-      <strong>Info:</strong> No user with that ID found.
+      <strong>Info:</strong> No user with that ID or name found.
     </div>
   {{end}}
 {{end}}
