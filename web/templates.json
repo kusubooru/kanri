@@ -24,6 +24,9 @@
     }, {
         "Name": "userFindTmpl",
         "Files": ["base.tmpl", "nav.tmpl", "user_find.tmpl"]
+    }, {
+        "Name": "aliasFindTmpl",
+        "Files": ["base.tmpl", "nav.tmpl", "alias_find.tmpl"]
     }]
 
 }

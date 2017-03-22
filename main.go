@@ -108,6 +108,7 @@ func main() {
 	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
 	http.Handle("/kanri/tags/approval", shim.Auth(mustAdmin(app.serveTagApproval), *loginURL))
 	http.Handle("/kanri/user/find", shim.Auth(mustAdmin(app.serveUserFind), *loginURL))
+	http.Handle("/kanri/alias/find", shim.Auth(mustAdmin(app.serveAliasFind), *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
@@ -216,7 +217,7 @@ func (app *App) render(w http.ResponseWriter, t *template.Template, data interfa
 }
 
 // mustAdmin checks context to see if user is admin and sends error
-// Unauthorized ifthey are not.
+// Unauthorized if they are not.
 func mustAdmin(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Get user and user IP from context.

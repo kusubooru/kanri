@@ -1,0 +1,69 @@
+{{define "title"}}Find Alias{{end}}
+{{define "css"}}
+  <style>
+    .alias-find-form {
+      margin: 0.5em;
+    }
+    .alias-find-form input {
+      font-size: 120%;
+      padding: 0.5em;
+    }
+    .alias-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table, td, th {
+      border: 1px solid #ddd;
+    }
+    td, th {
+      padding: 0.5em;
+      font-size: 120%;
+    }
+    .alias-table-body tr:nth-child(odd) {
+      background: #f9f9f9;
+    }
+  </style>
+{{end}}
+
+{{define "js"}}
+  <script type='text/javascript'>
+    function resetAliasFindForm(e) {
+      e.preventDefault();
+      var inputs = document.getElementById("aliasFindForm").getElementsByTagName("input");
+      for (var i = 0; i < inputs.length; i++) {
+        switch (inputs[i].type) {
+          case 'text':
+            inputs[i].value = '';
+            break;
+        }
+      }
+    }
+  </script>
+{{end}}
+{{define "content"}}
+  <div class="alias-find-form">
+    <form id="aliasFindForm" method="POST" action="/kanri/alias/find">
+	    <input type="text" name="oldTag" placeholder="Old Tag" value="{{if .Data}}{{.Data.Search.OldTag}}{{end}}">
+      <input type="text" name="newTag" placeholder="New Tag" value="{{if .Data}}{{.Data.Search.NewTag}}{{end}}">
+      <input type="submit" value="Find alias">
+      <input type="reset" onclick="resetAliasFindForm(event)">
+    </form>
+  </div>
+
+  {{if .Data}}
+    <table class="alias-table">
+      <thead>
+        <tr><th>Old Tag</th><th>New Tag</th></tr>
+      </thead>
+      <tbody class="alias-table-body">
+        {{range .Data.Alias}}
+	  <tr><td>{{.OldTag}}</td><td>{{.NewTag}}</td></td>
+        {{end}}
+      </tbody>
+    </table>
+  {{else}}
+    <div class="alert alert-info">
+      <strong>Info:</strong> No alias found.
+    </div>
+  {{end}}
+{{end}}
