@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/kusubooru/kanri/tags"
 	"github.com/kusubooru/shimmie"
-	"github.com/kusubooru/shimmie/tags"
 )
 
 func (app *App) serveTagApproval(w http.ResponseWriter, r *http.Request) {
@@ -107,5 +107,18 @@ func (app *App) handleTagHistoryDiff(w http.ResponseWriter, r *http.Request) {
 		New:     thNew,
 		Removed: removed,
 		Added:   added,
+	})
+}
+
+func (app *App) serveTagsScan(w http.ResponseWriter, r *http.Request) {
+	input := r.PostFormValue("input")
+	tgs := tags.Scan(input)
+
+	app.render(w, tagsScanTmpl, struct {
+		Input string
+		Tags  string
+	}{
+		Input: input,
+		Tags:  strings.Join(tgs, " "),
 	})
 }

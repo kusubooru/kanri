@@ -106,6 +106,7 @@ func main() {
 	http.Handle("/kanri/tags/history", shim.Auth(mustAdmin(app.serveTagHistory), *loginURL))
 	http.Handle("/kanri/tags/history/diff", shim.Auth(mustAdmin(app.handleTagHistoryDiff), *loginURL))
 	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
+	http.Handle("/kanri/tags/scan", shim.Auth(app.serveTagsScan, *loginURL))
 	http.Handle("/kanri/tags/approval", shim.Auth(mustAdmin(app.serveTagApproval), *loginURL))
 	http.Handle("/kanri/user/find", shim.Auth(mustAdmin(app.serveUserFind), *loginURL))
 	http.Handle("/kanri/alias/find", shim.Auth(mustAdmin(app.serveAliasFind), *loginURL))

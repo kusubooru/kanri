@@ -13,6 +13,7 @@ var (
 	tagHistoryDiffTmpl = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_history_diffTemplate))
 	tagHistoryTmpl     = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tag_historyTemplate))
 	tagsDiffTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_diffTemplate))
+	tagsScanTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + tags_scanTemplate))
 	userFindTmpl       = template.Must(template.New("").Funcs(fns).Parse(baseTemplate + navTemplate + user_findTemplate))
 )
 
@@ -349,6 +350,7 @@ const (
 	<a href="/kanri/tags/approval">Tag Approval</a>
 	<a href="/kanri/tags/history">Tag History</a>
 	<a href="/kanri/tags/diff">Tags Diff</a>
+	<a href="/kanri/tags/scan">Tags Scan</a>
 	<a href="/kanri/user/find">User Find</a>
 	<a href="/kanri/alias/find">Alias Find</a>
 	<form class="subnav-button-form" method="post" action="/kanri/logout">
@@ -617,6 +619,41 @@ const (
 			<li><strong class="added">+++</strong> {{ $a }}</li>
 		{{ end }}
 	</div>
+	{{end}}
+{{end}}
+`
+	tags_scanTemplate = `
+{{define "title"}}Tags Scan{{end}}
+{{define "css"}}
+<style>
+	.scan-form {
+		margin: 0.5em;
+	}
+	.scan-form textarea {
+		font-size: 120%;
+		display: block;
+		margin: 0.5em;
+	}
+	.scan-form label {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.scan-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+	{{with .Data}}
+	<form method="POST" class="scan-form">
+		<label for="input"><strong>Input</strong></label>
+		<textarea id="input" name="input" cols="60" rows="7">{{ .Input }}</textarea>
+		<label for="tags"><strong>Tags</strong></label>
+		<textarea id="tags" name="tags" cols="60" rows="7">{{ .Tags }}</textarea>
+		<input type="submit" value="Scan Tags">
+	</form>
 	{{end}}
 {{end}}
 `

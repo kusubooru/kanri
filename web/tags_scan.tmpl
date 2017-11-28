@@ -1,0 +1,33 @@
+{{define "title"}}Tags Scan{{end}}
+{{define "css"}}
+<style>
+	.scan-form {
+		margin: 0.5em;
+	}
+	.scan-form textarea {
+		font-size: 120%;
+		display: block;
+		margin: 0.5em;
+	}
+	.scan-form label {
+		font-size: 120%;
+		padding: 0.5em;
+	}
+	.scan-form input[type="submit"] {
+		font-size: 120%;
+		padding: 0.5em;
+		margin: 0.5em;
+	}
+</style>
+{{end}}
+{{define "content"}}
+	{{with .Data}}
+	<form method="POST" class="scan-form">
+		<label for="input"><strong>Input</strong></label>
+		<textarea id="input" name="input" cols="60" rows="7">{{ .Input }}</textarea>
+		<label for="tags"><strong>Tags</strong></label>
+		<textarea id="tags" name="tags" cols="60" rows="7">{{ .Tags }}</textarea>
+		<input type="submit" value="Scan Tags">
+	</form>
+	{{end}}
+{{end}}
