@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -93,11 +94,28 @@ func main() {
 	}
 
 	// app with Shimmie and common conf
-	app := App{Shimmie: shim, Common: common, Version: theVersion}
+	app := App{
+		Shimmie: Shimmie{
+			Users:                   shim,
+			Aliases:                 shim,
+			Images:                  shim,
+			ImageFiles:              shim,
+			RatedImages:             shim,
+			Ratings:                 shim,
+			ContributedTagHistories: shim,
+			ImageTagHistories:       shim,
+			TagHistories:            shim,
+			Title:                   common.Title,
+			AnalyticsID:             common.AnalyticsID,
+			Description:             common.Description,
+			Keywords:                common.Keywords,
+		},
+		Version: theVersion,
+	}
 
 	http.Handle("/kanri", shim.Auth(app.serveIndex, *loginURL))
 	http.Handle("/kanri/safe", shim.Auth(mustAdmin(app.serveSafe), *loginURL))
-	http.Handle("/kanri/safe/rate", shim.Auth(mustAdmin(app.handleSafeRate), *loginURL))
+	http.Handle("/kanri/safe/rate", shim.Auth(mustAdmin(app.handleSafeRate("/kanri/safe")), *loginURL))
 	http.Handle("/kanri/_image/", shim.Auth(app.serveImage, *loginURL))
 	http.Handle("/kanri/_thumb/", shim.Auth(app.serveThumb, *loginURL))
 	http.Handle("/kanri/login", http.HandlerFunc(app.serveLogin))
@@ -122,9 +140,84 @@ func main() {
 	}
 }
 
+type userGetter interface {
+	GetUser(userID int64) (*shimmie.User, error)
+	GetUserByName(username string) (*shimmie.User, error)
+}
+
+type aliasFinder interface {
+	FindAlias(oldTag, newTag string) ([]shimmie.Alias, error)
+}
+
+type imageRater interface {
+	RateImage(id int, rating string) error
+}
+
+type imageFileWriter interface {
+	WriteImageFile(w io.Writer, path, hash string) error
+}
+
+type ratedImagesGetter interface {
+	GetRatedImages(username string) ([]shimmie.RatedImage, error)
+}
+
+type ratingLogger interface {
+	LogRating(imgID int, rating, username, userIP string) error
+}
+
+type contributedTagHistoryGetter interface {
+	GetContributedTagHistory(imageOwnerUsername string) ([]shimmie.ContributedTagHistory, error)
+}
+
+type imageTagHistoryGetter interface {
+	GetImageTagHistory(imageID int) ([]shimmie.TagHistory, error)
+}
+
+type tagHistoryGetter interface {
+	GetTagHistory(imageID int) (*shimmie.TagHistory, error)
+}
+
+//type shimmieStore interface {
+//	GetUser(userID int64) (*shimmie.User, error)
+//	GetUserByName(username string) (*shimmie.User, error)
+//	FindAlias(oldTag, newTag string) ([]shimmie.Alias, error)
+//	RateImage(id int, rating string) error
+//	WriteImageFile(w io.Writer, path, hash string) error
+//	GetRatedImages(username string) ([]shimmie.RatedImage, error)
+//	LogRating(imgID int, rating, username, userIP string) error
+//	GetContributedTagHistory(imageOwnerUsername string) ([]shimmie.ContributedTagHistory, error)
+//	GetImageTagHistory(imageID int) ([]shimmie.TagHistory, error)
+//	GetTagHistory(imageID int) (*shimmie.TagHistory, error)
+//}
+
+type Shimmie struct {
+	//shimmieStore
+
+	Users                   userGetter
+	Aliases                 aliasFinder
+	Images                  imageRater
+	ImageFiles              imageFileWriter
+	RatedImages             ratedImagesGetter
+	Ratings                 ratingLogger
+	ContributedTagHistories contributedTagHistoryGetter
+	ImageTagHistories       imageTagHistoryGetter
+	TagHistories            tagHistoryGetter
+
+	ImagePath string
+	ThumbPath string
+
+	// Shimmie Common configuration.
+
+	Title       string
+	AnalyticsID string
+	Description string
+	Keywords    string
+}
+
 type App struct {
-	Shimmie *shimmie.Shimmie
-	Common  *shimmie.Common
+	Shimmie
+	//Shimmie *shimmie.Shimmie
+	//Common  *shimmie.Common
 	Version string
 }
 
@@ -143,7 +236,7 @@ func (app *App) serveThumb(w http.ResponseWriter, r *http.Request) {
 func (app *App) serveImageFile(w http.ResponseWriter, r *http.Request, path string) {
 	hash := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
 
-	err := app.Shimmie.WriteImageFile(w, path, hash)
+	err := app.Shimmie.ImageFiles.WriteImageFile(w, path, hash)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("could not write image file: %v", err), http.StatusInternalServerError)
 		return
@@ -162,7 +255,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
-	user, err := app.Shimmie.GetUserByName(username)
+	user, err := app.Shimmie.Users.GetUserByName(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			app.render(w, loginTmpl, "User does not exist.")
@@ -207,13 +300,19 @@ func render(w http.ResponseWriter, t *template.Template, data interface{}) {
 
 func (app *App) render(w http.ResponseWriter, t *template.Template, data interface{}) {
 	render(w, t, struct {
-		Data    interface{}
-		Common  *shimmie.Common
-		Version string
+		Data        interface{}
+		Title       string
+		AnalyticsID string
+		Description string
+		Keywords    string
+		Version     string
 	}{
-		Data:    data,
-		Common:  app.Common,
-		Version: app.Version,
+		Data:        data,
+		Title:       strings.Title(app.Title),
+		AnalyticsID: app.AnalyticsID,
+		Description: app.Description,
+		Keywords:    app.Keywords,
+		Version:     app.Version,
 	})
 }
 

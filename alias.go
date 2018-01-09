@@ -15,7 +15,7 @@ func (app *App) serveAliasFind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	alias, err := app.Shimmie.FindAlias(oldTag, newTag)
+	alias, err := app.Shimmie.Aliases.FindAlias(oldTag, newTag)
 	if err != nil {
 		http.Error(w, fmt.Sprint("failed to find alias:", err), http.StatusInternalServerError)
 		return

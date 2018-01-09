@@ -18,7 +18,7 @@ func (app *App) serveTagApproval(w http.ResponseWriter, r *http.Request) {
 		ownerUsername = "kusubooru"
 	}
 
-	ths, err := app.Shimmie.GetContributedTagHistory(ownerUsername)
+	ths, err := app.Shimmie.ContributedTagHistories.GetContributedTagHistory(ownerUsername)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,7 +43,7 @@ func (app *App) serveTagHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ths, err := app.Shimmie.GetImageTagHistory(imageID)
+	ths, err := app.Shimmie.ImageTagHistories.GetImageTagHistory(imageID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -84,12 +84,12 @@ func (app *App) handleTagHistoryDiff(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Bad tag history ID: %v, expecting integer: %v", old, err), http.StatusBadRequest)
 		return
 	}
-	thNew, err := app.Shimmie.GetTagHistory(newID)
+	thNew, err := app.Shimmie.TagHistories.GetTagHistory(newID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	thOld, err := app.Shimmie.GetTagHistory(oldID)
+	thOld, err := app.Shimmie.TagHistories.GetTagHistory(oldID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

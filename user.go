@@ -46,7 +46,7 @@ func (app *App) serveUserFindByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := app.Shimmie.GetUser(userID)
+	u, err := app.Shimmie.Users.GetUser(userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			app.render(w, userFindTmpl, nil)
@@ -66,7 +66,7 @@ func (app *App) serveUserFindByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := app.Shimmie.GetUserByName(username)
+	u, err := app.Shimmie.Users.GetUserByName(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			app.render(w, userFindTmpl, nil)

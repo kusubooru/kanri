@@ -99,7 +99,7 @@ const (
 	<title>Kanri - {{block "title" .}}{{end}}</title>
 	<script type='text/javascript'>
 		var _gaq = _gaq || [];
-		_gaq.push(['_setAccount', '{{.Common.AnalyticsID}}']);
+		_gaq.push(['_setAccount', '{{.AnalyticsID}}']);
 		_gaq.push(['_trackPageview']);
 		(function() {
 		  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -107,8 +107,8 @@ const (
 		  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		})();
 	</script>
-	<meta name="description" content="{{.Common.Description}}">
-	<meta name="keywords" content="{{.Common.Keywords}}">
+	<meta name="description" content="{{.Description}}">
+	<meta name="keywords" content="{{.Keywords}}">
 	<style>
 		body {
 			font-size: 16px;
@@ -310,7 +310,7 @@ const (
 	{{block "css" .}}{{end}}
 </head>
 <body>
-	<h1 id="site-title"><a href="/post/list">{{.Common.SiteTitle}}</a></h1>
+	<h1 id="site-title"><a href="/post/list">{{.Title}}</a></h1>
 	{{block "subnav" .}}{{end}}
 	{{block "content" .}}{{end}}
 	<footer>
