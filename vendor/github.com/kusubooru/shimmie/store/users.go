@@ -46,6 +46,12 @@ func (db *datastore) DeleteUser(id int64) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if cerr := stmt.Close(); err == nil {
+			err = cerr
+			return
+		}
+	}()
 	if _, err := stmt.Exec(id); err != nil {
 		return err
 	}
@@ -57,13 +63,19 @@ func (db *datastore) CreateUser(u *shimmie.User) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if cerr := stmt.Close(); err == nil {
+			err = cerr
+			return
+		}
+	}()
 	if u.Class == "" {
 		u.Class = "user"
 	}
 	if u.Admin == "" {
 		u.Admin = "N"
 	}
-	hash := shimmie.Hash(u.Pass)
+	hash := shimmie.PasswordHash(u.Name, u.Pass)
 	_, err = stmt.Exec(u.Name, hash, u.Email, u.Class)
 	if err != nil {
 		return err
@@ -126,13 +138,13 @@ func (db *datastore) GetAllUsers(limit, offset int) ([]shimmie.User, error) {
 		}
 	}()
 
-	var (
-		u     shimmie.User
-		users []shimmie.User
-		pass  sql.NullString
-		email sql.NullString
-	)
+	var users []shimmie.User
 	for rows.Next() {
+		var (
+			u     shimmie.User
+			pass  sql.NullString
+			email sql.NullString
+		)
 		err = rows.Scan(
 			&u.ID,
 			&u.Name,

@@ -4,12 +4,14 @@
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
-  revision = "7ebe0a500653eeb1859664bed5e48dec1e164e73"
+  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
+  version = "v1.3"
 
 [[projects]]
+  branch = "master"
   name = "github.com/kusubooru/shimmie"
   packages = [".","store"]
-  revision = "0b14914c433b65922698a5f60126e23349095c9e"
+  revision = "3d846a5c128f9507a546bdbd54e6c4a994f5f94b"
 
 [solve-meta]
   analyzer-name = "dep"

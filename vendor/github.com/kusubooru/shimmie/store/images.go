@@ -16,6 +16,12 @@ func (db *datastore) RateImage(id int, rating string) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if cerr := stmt.Close(); err == nil {
+			err = cerr
+			return
+		}
+	}()
 
 	res, err := stmt.Exec(rating, id)
 	if err != nil {
@@ -119,12 +125,10 @@ func (db *datastore) GetRatedImages(username string) ([]shimmie.RatedImage, erro
 		}
 	}()
 
-	var (
-		img    shimmie.RatedImage
-		images []shimmie.RatedImage
-	)
+	var images []shimmie.RatedImage
 	for rows.Next() {
 		var (
+			img      shimmie.RatedImage
 			source   sql.NullString
 			parentID sql.NullInt64
 			author   sql.NullString

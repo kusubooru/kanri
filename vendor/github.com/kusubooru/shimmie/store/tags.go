@@ -1,9 +1,58 @@
 package store
 
-import "github.com/kusubooru/shimmie"
+import (
+	"github.com/kusubooru/shimmie"
+)
 
-func (db *datastore) GetImageTagHistory(imageID int) ([]shimmie.TagHistory, error) {
-	rows, err := db.Query(imageTagHistoryGetQuery, imageID)
+func (db *datastore) GetTag(oldTag string) (*shimmie.Tag, error) {
+	var (
+		t shimmie.Tag
+	)
+	err := db.QueryRow(tagGetQuery, oldTag).Scan(
+		&t.ID,
+		&t.Tag,
+		&t.Count,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func (db *datastore) DeleteTag(name string) error {
+	stmt, err := db.Prepare(tagDeleteStmt)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if cerr := stmt.Close(); err == nil {
+			err = cerr
+			return
+		}
+	}()
+	if _, err := stmt.Exec(name); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *datastore) CreateTag(t *shimmie.Tag) error {
+	stmt, err := db.Prepare(tagInsertStmt)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if cerr := stmt.Close(); err == nil {
+			err = cerr
+			return
+		}
+	}()
+	_, err = stmt.Exec(t.Tag, t.Count)
+	return err
+}
+
+func (db *datastore) GetAllTags(limit, offset int) ([]*shimmie.Tag, error) {
+	rows, err := db.Query(tagsGetAllQuery, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -14,125 +63,44 @@ func (db *datastore) GetImageTagHistory(imageID int) ([]shimmie.TagHistory, erro
 		}
 	}()
 
-	var (
-		th  shimmie.TagHistory
-		ths []shimmie.TagHistory
-	)
+	var tags []*shimmie.Tag
 	for rows.Next() {
-		err := rows.Scan(
-			&th.ID,
-			&th.ImageID,
-			&th.UserID,
-			&th.UserIP,
-			&th.Tags,
-			&th.DateSet,
-			&th.Name,
+		var t shimmie.Tag
+		err = rows.Scan(
+			&t.ID,
+			&t.Tag,
+			&t.Count,
 		)
 		if err != nil {
 			return nil, err
 		}
-		ths = append(ths, th)
+		tags = append(tags, &t)
 	}
-	return ths, nil
-}
-
-func (db *datastore) GetTagHistory(id int) (*shimmie.TagHistory, error) {
-	var th shimmie.TagHistory
-	err := db.QueryRow(tagHistoryGetQuery, id).Scan(
-		&th.ID,
-		&th.ImageID,
-		&th.UserID,
-		&th.UserIP,
-		&th.Tags,
-		&th.DateSet,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &th, err
-}
-
-func (db *datastore) GetContributedTagHistory(imageOwnerUsername string) ([]shimmie.ContributedTagHistory, error) {
-	rows, err := db.Query(contributedTagHistoryGetQuery, imageOwnerUsername)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if cerr := rows.Close(); err == nil {
-			err = cerr
-			return
-		}
-	}()
-
-	var (
-		th  shimmie.ContributedTagHistory
-		ths []shimmie.ContributedTagHistory
-	)
-	for rows.Next() {
-		err := rows.Scan(
-			&th.ID,
-			&th.ImageID,
-			&th.OwnerID,
-			&th.OwnerName,
-			&th.TaggerID,
-			&th.TaggerName,
-			&th.TaggerIP,
-			&th.Tags,
-			&th.DateSet,
-		)
-		if err != nil {
-			return nil, err
-		}
-		ths = append(ths, th)
-	}
-	return ths, nil
+	return tags, err
 }
 
 const (
-	imageTagHistoryGetQuery = `
-SELECT tag_histories.*, users.name
-FROM tag_histories
-JOIN users ON tag_histories.user_id = users.id
-WHERE image_id = ?
-ORDER BY tag_histories.id DESC
-`
-	tagHistoryGetQuery = `
+	tagGetQuery = `
 SELECT *
-FROM tag_histories
-WHERE id = ?
+FROM tags
+WHERE tag = ?
 `
-	// contributedTagHistoryGetQuery performs a "reverse group by" by selecting
-	// the max tag_histories ID in a subquery. It does not allow to get the
-	// count of tag_histories per image ID as originally planned but it's
-	// simpler and faster than queries which include count and group by.
-	contributedTagHistoryGetQuery = `
-SELECT
-    th.id AS id,
-    img.id AS image_id,
-    owner.id AS owner_id,
-    owner.name AS owner_name,
-    tagger.id AS tagger_id,
-    tagger.name AS tagger_name,
-    th.user_ip AS tagger_ip,
-    th.tags AS tags,
-    th.date_set AS date_set
-FROM
-    tag_histories th
-        JOIN
-    images img ON th.image_id = img.id
-        JOIN
-    users owner ON img.owner_id = owner.id
-        JOIN
-    users tagger ON th.user_id = tagger.id
-WHERE
-    th.id = (SELECT
-            MAX(id)
-        FROM
-            tag_histories
-        WHERE
-            th.image_id = image_id)
-        AND th.user_id != img.owner_id
-        AND owner.name = ?
-ORDER BY date_set DESC
+
+	tagDeleteStmt = `
+DELETE
+FROM tags
+WHERE tag = ?
+`
+
+	tagInsertStmt = `
+INSERT tags
+SET
+  tag = ?,
+  count = ?
+`
+	tagsGetAllQuery = `
+SELECT *
+FROM tags
+LIMIT ? OFFSET ?
 `
 )
