@@ -113,21 +113,21 @@ func main() {
 		Version: theVersion,
 	}
 
-	http.Handle("/kanri", shim.Auth(app.serveIndex, *loginURL))
-	http.Handle("/kanri/safe", shim.Auth(mustAdmin(app.serveSafe), *loginURL))
-	http.Handle("/kanri/safe/rate", shim.Auth(mustAdmin(app.handleSafeRate("/kanri/safe")), *loginURL))
-	http.Handle("/kanri/_image/", shim.Auth(app.serveImage, *loginURL))
-	http.Handle("/kanri/_thumb/", shim.Auth(app.serveThumb, *loginURL))
-	http.Handle("/kanri/login", http.HandlerFunc(app.serveLogin))
-	http.Handle("/kanri/login/submit", http.HandlerFunc(app.handleLogin))
-	http.Handle("/kanri/logout", http.HandlerFunc(handleLogout))
-	http.Handle("/kanri/tags/history", shim.Auth(mustAdmin(app.serveTagHistory), *loginURL))
-	http.Handle("/kanri/tags/history/diff", shim.Auth(mustAdmin(app.handleTagHistoryDiff), *loginURL))
-	http.Handle("/kanri/tags/diff", shim.Auth(app.serveTagsDiff, *loginURL))
-	http.Handle("/kanri/tags/scan", shim.Auth(app.serveTagsScan, *loginURL))
-	http.Handle("/kanri/tags/approval", shim.Auth(mustAdmin(app.serveTagApproval), *loginURL))
-	http.Handle("/kanri/user/find", shim.Auth(mustAdmin(app.serveUserFind), *loginURL))
-	http.Handle("/kanri/alias/find", shim.Auth(mustAdmin(app.serveAliasFind), *loginURL))
+	http.Handle("/kanri", shim.AuthFunc(app.serveIndex, *loginURL))
+	http.Handle("/kanri/safe", shim.Auth(mustAdminFunc(app.serveSafe), *loginURL))
+	http.Handle("/kanri/safe/rate", shim.Auth(mustAdminFunc(app.handleSafeRate("/kanri/safe")), *loginURL))
+	http.Handle("/kanri/_image/", shim.AuthFunc(app.serveImage, *loginURL))
+	http.Handle("/kanri/_thumb/", shim.AuthFunc(app.serveThumb, *loginURL))
+	http.HandleFunc("/kanri/login", app.serveLogin)
+	http.HandleFunc("/kanri/login/submit", app.handleLogin)
+	http.HandleFunc("/kanri/logout", handleLogout)
+	http.Handle("/kanri/tags/history", shim.Auth(mustAdminFunc(app.serveTagHistory), *loginURL))
+	http.Handle("/kanri/tags/history/diff", shim.Auth(mustAdminFunc(app.handleTagHistoryDiff), *loginURL))
+	http.Handle("/kanri/tags/diff", shim.AuthFunc(app.serveTagsDiff, *loginURL))
+	http.Handle("/kanri/tags/scan", shim.AuthFunc(app.serveTagsScan, *loginURL))
+	http.Handle("/kanri/tags/approval", shim.Auth(mustAdminFunc(app.serveTagApproval), *loginURL))
+	http.Handle("/kanri/user/find", shim.Auth(mustAdminFunc(app.serveUserFind), *loginURL))
+	http.Handle("/kanri/alias/find", shim.Auth(mustAdminFunc(app.serveAliasFind), *loginURL))
 
 	if useTLS {
 		if err := http.ListenAndServeTLS(*httpAddr, *certFile, *keyFile, nil); err != nil {
@@ -318,14 +318,18 @@ func (app *App) render(w http.ResponseWriter, t *template.Template, data interfa
 
 // mustAdmin checks context to see if user is admin and sends error
 // Unauthorized if they are not.
-func mustAdmin(fn http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func mustAdmin(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get user and user IP from context.
 		user, ok := shimmie.FromContextGetUser(r.Context())
 		if !ok || user.Admin != "Y" {
 			http.Error(w, "You are not authorized to view this page.", http.StatusUnauthorized)
 			return
 		}
-		fn.ServeHTTP(w, r)
-	}
+		h.ServeHTTP(w, r)
+	})
+}
+
+func mustAdminFunc(fn http.HandlerFunc) http.Handler {
+	return mustAdmin(fn)
 }
