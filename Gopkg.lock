@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/kusubooru/shimmie"
   packages = [".","store"]
-  revision = "95391632106f26ef28a36d508d1185ff83d0fa61"
+  revision = "bea76d6caba671909f800876d4569af29d1ed91b"
 
 [solve-meta]
   analyzer-name = "dep"

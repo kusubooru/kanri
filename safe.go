@@ -20,7 +20,14 @@ func (app *App) serveSafe(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	app.render(w, safeTmpl, images)
+	data := struct {
+		Images []shimmie.RatedImage
+		Total  int
+	}{
+		images,
+		len(images),
+	}
+	app.render(w, safeTmpl, data)
 }
 
 func (app *App) handleSafeRate(redirectURL string) http.HandlerFunc {

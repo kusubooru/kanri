@@ -394,7 +394,12 @@ const (
 </style>
 {{end}}
 {{define "content"}}
-{{range .Data}}
+{{if .Data.Images}}
+  <div class="safe">
+  Total: {{.Data.Total}}
+  </div>
+{{end}}
+{{range .Data.Images}}
 <div class="safe">
 	<div class="safe-thumb">
 		<a href="/kanri/_image/{{.Hash}}"><img src="/kanri/_thumb/{{.Hash}}"></a>
