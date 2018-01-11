@@ -105,6 +105,8 @@ func main() {
 			ContributedTagHistories: shim,
 			ImageTagHistories:       shim,
 			TagHistories:            shim,
+			ImagePath:               *imagePath,
+			ThumbPath:               *thumbPath,
 			Title:                   common.Title,
 			AnalyticsID:             common.AnalyticsID,
 			Description:             common.Description,
