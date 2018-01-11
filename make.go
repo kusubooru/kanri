@@ -14,7 +14,10 @@ import (
 	"time"
 )
 
-const commandName = "kanri"
+const (
+	commandName     = "kanri"
+	commandLocation = "."
+)
 
 type platform struct {
 	os   string
@@ -46,6 +49,7 @@ func (bin binary) Names() []string {
 var (
 	release   = flag.Bool("release", false, "Build binaries for all target platforms.")
 	clean     = flag.Bool("clean", false, "Remove all created binaries from current directory.")
+	deploy    = flag.Bool("deploy", false, "Deploy binary to server.")
 	buildARCH = flag.String("arch", runtime.GOARCH, "Architecture to build for.")
 	buildOS   = flag.String("os", runtime.GOOS, "Operating system to build for.")
 )
@@ -63,16 +67,12 @@ func main() {
 	bin := binary{
 		name: commandName,
 		targets: []platform{
-			{os: "linux", arch: "386"}, {os: "linux", arch: "amd64"},
-			{os: "windows", arch: "386"}, {os: "windows", arch: "amd64"},
-			{os: "darwin", arch: "386"}, {os: "darwin", arch: "amd64"},
+			{os: "linux", arch: "amd64"},
 		},
 	}
 	bin.version = getVersion()
 
 	if *release {
-		fmt.Println("CPUs:", runtime.NumCPU())
-		fmt.Println("GOMAXPROCS:", runtime.GOMAXPROCS(0))
 		start := time.Now()
 		forEachBinary(bin, buildBinary)
 		fmt.Println("Time elapsed:", time.Since(start))
@@ -84,7 +84,26 @@ func main() {
 		os.Exit(0)
 	}
 
+	if *deploy {
+		deployBin(bin, *buildOS, *buildARCH)
+		os.Exit(0)
+	}
+
 	buildBinary(bin, *buildOS, *buildARCH)
+}
+
+func deployBin(bin binary, OS, arch string) {
+	buildBinary(bin, OS, arch)
+	name := bin.Name(OS, arch)
+
+	server := "kusubooru.com"
+	fmt.Println("Deploying to server", server)
+	cmd := exec.Command("scp", name, server+":/home/kusubooru/code/go/bin")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("Error deploying to server: %v", err)
+	}
 }
 
 func getVersion() string {
@@ -111,8 +130,9 @@ func forEachBinary(bin binary, fn binaryFunc) {
 }
 
 func buildBinary(bin binary, OS, arch string) {
-	ldflags := fmt.Sprintf("--ldflags=-X main.theVersion=%s", bin.version)
-	cmd := exec.Command("go", "build", ldflags, "-o", bin.Name(OS, arch))
+	ldflags := fmt.Sprintf("--ldflags=-s -w -X main.theVersion=%s", bin.version)
+	tags := fmt.Sprint("--tags=prod")
+	cmd := exec.Command("go", "build", tags, ldflags, "-o", bin.Name(OS, arch), commandLocation)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
